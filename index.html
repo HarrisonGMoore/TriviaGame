@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Trivia Game</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+</head>
+<body>
+	
+<div class="container text-center">
+	<div class="row" id="splashScreen">
+		<div class="col-sm-3 col-md-4"></div>
+		<div class="col-sm-6 col-md-4">
+			<h1>Fallout Trivia Game!</h1>
+			<div class="btn btn-success" id="start">Start Game</div>
+		</div>
+		<div class="col-sm-3 col-md-4"></div>
+	</div>
+	
+	<div class="row" id="questions">
+		<div class="col-sm-3 col-md-4"></div>
+		<div class="col-sm-6 col-md-4" id="interestingData">
+			<div id="timer"><h1>00:05</h1></div>
+			<div id="text" data-correct="true"></div>
+			<div id="answers"></div>
+			<br>
+		</div>
+		<div class="col-sm-3 col-md-4"></div>
+	</div>
+
+	<div class="row" id="gameResults">
+		<div class="col-sm-3 col-md-4"></div>
+		<div class="col-sm-6 col-md-4">
+			<h2>Results: </h2>
+			<div id="results"></div>
+			<br>
+			<div class="btn btn-success" id="restart">Restart</div>
+		</div>
+		<div class="col-sm-3 col-md-4"></div>
+	</div>
+</div>
+<script>
+$(document).ready(function() {
+	
+	var question1 = {
+		text: "What does the NCR stand for?", 
+		answer: "New California Republic",
+		wrong: ["Negleted Celts Republic", "Nomadic Conneticuit Reactionaries", "New Country of Robots"],
+		correct: false,
+	}
+	var question2 = {
+		text: "When did the great war begin?", 
+		answer: "October 23, 2077",
+		wrong: ["December 5, 1957", "April 3, 1973", "Febuary 16, 2004"],
+		correct: false,
+	}
+	var question3 = {
+		text: "What causes ghoulification?", 
+		answer: "Radiation",
+		wrong: ["Scientific experimentation", "Old age", "Yellow."],
+		correct: false,
+	}
+	var question4 = {
+		text: "What is the game in the Fallout franchise everyone is trying to forget at the moment?", 
+		answer: "Fallout 76",
+		wrong: ["Fallout Van Buren", "Fallout Brotherhood of Steel", "Fallout 2 (if you guess this you have a problem)."],
+		correct: false,
+	}
+	var questionPool = [question1, question2, question3, question4];
+	var poolLength = questionPool.length;
+	var count = 0;
+	var intervalID; 
+	var time = 5;
+
+$("#start").click(function() {
+	createQuestions(questionPool[count]);
+	$("#splashScreen").css('display', 'none');
+	$("#questions").css('display', 'inherit');
+});
+function createQuestions(array) {
+	intervalID = setInterval(timer, 1000);
+	$("#text").html("<div><h4>" + array.text);
+	$("#answers").html("<div class='text-center btn btn-info btn-block' data-correct='true'>" + array.answer);
+	for (var i = 0; i < array.wrong.length; i++) {
+		$("#answers").append("<div class='text-center btn btn-info btn-block' data-correct='false'>" + array.wrong[i]);
+	};
+	correct();
+}
+function nextQuestion() {
+	createQuestions(questionPool[count]);
+}
+function correct() {
+	$("#answers div").click(function() {
+		var questCorrect = $(this).data("correct");
+		if (questCorrect === true) {
+			questionPool[count].correct = "Correct!";
+			count++;
+			clearInterval(intervalID);
+			time = 5;
+			setTimeout(function() {
+				checkGameEnd();		
+			}, 300);
+		} else {
+			questionPool[count].correct = "Sorry, you got this wrong!";
+			count++;
+			clearInterval(intervalID);
+			time = 5;
+			setTimeout(function() {
+				checkGameEnd();		
+			}, 300);	
+		}
+	});
+}
+function checkGameEnd() {
+	if (count === questionPool.length) {
+	$("#questions").css('display', 'none');	
+	createResults();
+	$("#gameResults").css('display', 'inherit');
+	} else {
+		nextQuestion();
+	}
+}
+function createResults() {
+	for (var i = 0; i < poolLength; i++) {
+		$("#results").append("<div>Question #"+[i+1]+': ' + questionPool[i].correct + "</div>");
+	}
+}
+$("#restart").click(function() {
+	count = 0;
+	$("#results").empty();	
+	for (var i = 0; i < poolLength; i++) {
+		questionPool[i].correct = false;
+	}
+	$("#gameResults").css('display', 'none');
+	$("#splashScreen").css('display', 'inherit');
+});
+function timer() {
+	$("#timer h1").html("00:0"+time);
+	$("#timer").css('visibility', 'inherit');
+
+	if (time === 0) {
+		clearInterval(intervalID);
+		time = 5;
+		questionPool[count].correct = "Ran out of time with this question!";
+		count++;
+		setTimeout(function() {
+			checkGameEnd();		
+		}, 600);
+	}
+	time--;
+};
+});
+</script>
+</body>
+</html>
